@@ -34,6 +34,11 @@ class AddressTest(unittest.TestCase):
         expected = [summary, address, u'%s %s' % (zip_code, city)]
         self.assertEquals(expected, address_object.get_address_lines())
 
+    def test_get_address_lines__address_list(self):
+        address = Address('Summary', ['Prague street', 'Czech Republic'])
+        expected = [u'Summary', u'Prague street', u'Czech Republic', u' ']
+        self.assertEquals(expected, address.get_address_lines())
+
     def test_get_contact_lines(self):
         phone = '56846846'
         email = 'mail@mail.com'

@@ -12,8 +12,14 @@ class UnicodeProperty(object):
 
     def __setattr__(self, key, value):
         if key in self._attrs:
-            value = unicode(value)
+            value = self.deep_unicode(value)
         self.__dict__[key] = value
+
+    def deep_unicode(self, value):
+        if isinstance(value, list):
+            return [self.deep_unicode(v) for v in value]
+        else:
+            return unicode(value)
 
 class Address(UnicodeProperty):
     _attrs = ('summary', 'address', 'city', 'zip', 'phone', 'email',
@@ -38,11 +44,14 @@ class Address(UnicodeProperty):
 
 
     def get_address_lines(self):
-        address_line = [
-            self.summary,
-            self.address,
-            u'%s %s' % (self.zip, self.city)
-            ]
+
+        address = self.address
+        if not isinstance(address, list):
+            address = [address]
+
+        address_line = [self.summary] + address
+        address_line.append(u'%s %s' % (self.zip, self.city))
+
         if self.vat_id:
             address_line.append(_(u'Vat in: %s') % self.vat_id)
 
