@@ -100,7 +100,7 @@ class SimpleInvoice(BaseInvoice):
         self.drawTitle()
         self.drawProvider(self.TOP - 10,self.LEFT + 3)
         self.drawClient(self.TOP - 35,self.LEFT + 91)
-        self.drawPayment(self.TOP - 47,self.LEFT + 3)
+        self.drawPayment(self.TOP - 45,self.LEFT + 3)
         self.drawQR(self.TOP - 39.5, self.LEFT + 59, 80.0)
         self.drawDates(self.TOP - 10,self.LEFT + 91)
         self.drawItems(self.TOP - 80,self.LEFT)
@@ -198,18 +198,27 @@ class SimpleInvoice(BaseInvoice):
         self.pdf.setFont('DejaVu-Bold', 9)
         self.pdf.drawString(LEFT * mm, TOP * mm, _(u'Payment information'))
 
+        self.pdf.setFont('DejaVu', 8)
         text = self.pdf.beginText((LEFT + 2) * mm, (TOP - 6) * mm)
-        lines = [
-            self.invoice.provider.bank_name,
-            '%s: %s' % (_(u'Account n.'), self.invoice.provider.bank_account),
-        ]
+
+        lines = []
+
+        if self.invoice.provider.bank_name:
+            lines.append(
+                '%s: %s' % (_(u'Account n.'), self.invoice.provider.bank_account))
         if self.invoice.variable_symbol:
             lines.append(
                 '%s: %s' % (_(u'Variable symbol'), self.invoice.variable_symbol))
         if self.invoice.specific_symbol:
             lines.append(
                 '%s: %s' % (_(u'Specific symbol'), self.invoice.specific_symbol))
+
+        b = self.invoice.provider.bank
+        if b:
+            lines.extend(b.get_bank_lines())
+
         text.textLines(lines)
+
         self.pdf.drawText(text)
 
 
@@ -427,7 +436,7 @@ class CorrectingInvoice(SimpleInvoice):
         self.drawTitle()
         self.drawProvider(self.TOP - 10,self.LEFT + 3)
         self.drawClient(self.TOP - 35,self.LEFT + 91)
-        self.drawPayment(self.TOP - 47,self.LEFT + 3)
+        self.drawPayment(self.TOP - 45,self.LEFT + 3)
         self.drawCorretion(self.TOP - 73,self.LEFT)
         self.drawDates(self.TOP - 10,self.LEFT + 91)
         self.drawItems(self.TOP - 82,self.LEFT)

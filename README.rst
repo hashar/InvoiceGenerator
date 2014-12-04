@@ -48,6 +48,24 @@ Usage::
 	pdf = SimpleInvoice(invoice)
 	pdf.gen(tmp_file.name, generate_qr_code=True)
 
+For international payments, use the `BankAccount` class and a multline address::
+
+    provider = Provider(
+        'My company',
+        address=[
+            '777 rue des frites',
+            '44000 Nantes',
+            'France',
+        ],
+        bank=BankAccount(
+            iban='CZ4201000000195505030267',
+            bic='ACMECZ42',
+            bank_name='Acme Bank CZ',
+            bank_address='Paradise avenue, 37th - Prague',
+            bank_country='Czech Republic',
+        )
+    )
+
 Hacking
 =======
 

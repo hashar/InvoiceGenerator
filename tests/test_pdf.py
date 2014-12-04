@@ -4,7 +4,7 @@ import unittest
 from tempfile import NamedTemporaryFile
 import datetime
 
-from InvoiceGenerator.api import Invoice, Item, Client, Provider, Creator
+from InvoiceGenerator.api import Invoice, Item, Client, Provider, BankAccount, Creator
 from InvoiceGenerator.pdf import SimpleInvoice, CorrectingInvoice, ProformaInvoice
 
 
@@ -67,6 +67,20 @@ class TestBaseInvoice(unittest.TestCase):
         tmp_file1 = NamedTemporaryFile(delete=False)
         pdf = CorrectingInvoice(invoice)
         pdf.gen(tmp_file1.name)
+
+    def test_generate_with_BankAccount(self):
+        client = Client('Customer')
+
+        bank_account = BankAccount(iban='iban', bic='bic',
+                                   bank_name='bank name',
+                                   bank_address='address')
+        provider = Provider('My Company', bank=bank_account)
+        invoice = Invoice(client, provider, Creator('Bank account holder'))
+
+        tmp_file = NamedTemporaryFile(delete=False)
+
+        pdf = SimpleInvoice(invoice)
+        pdf.gen(tmp_file.name)
 
     def test_generate_proforma(self):
         provider = Provider('Pupik')

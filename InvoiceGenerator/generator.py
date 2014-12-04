@@ -112,7 +112,7 @@ class Invoice:
         self.drawMain()
         self.drawProvider(self.TOP-10,self.LEFT+3)
         self.drawClient(self.TOP-30,self.LEFT+91)
-        self.drawPayment(self.TOP-47,self.LEFT+3)
+        self.drawPayment(self.TOP-45,self.LEFT+3)
         self.drawItems(self.TOP-80,self.LEFT)
         self.drawDates(self.TOP-10,self.LEFT+91)
 

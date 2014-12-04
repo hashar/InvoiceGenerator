@@ -5,7 +5,7 @@ import datetime
 
 from InvoiceGenerator.conf import _
 
-__all__ = ['Client', 'Provider', 'Creator', 'Item', 'Invoice']
+__all__ = ['Client', 'Provider', 'BankAccount', 'Creator', 'Item', 'Invoice']
 
 class UnicodeProperty(object):
     _attrs = ()
@@ -18,16 +18,18 @@ class UnicodeProperty(object):
     def deep_unicode(self, value):
         if isinstance(value, list):
             return [self.deep_unicode(v) for v in value]
+        elif isinstance(value, object):
+            return value
         else:
             return unicode(value)
 
 class Address(UnicodeProperty):
     _attrs = ('summary', 'address', 'city', 'zip', 'phone', 'email',
-              'bank_name', 'bank_account', 'note', 'vat_id', 'ir',
+              'bank', 'bank_name', 'bank_account', 'note', 'vat_id', 'ir',
               'logo_filename')
 
     def __init__(self, summary, address='', city='', zip='', phone='', email='',
-               bank_name='', bank_account='', note='', vat_id='', ir='',
+               bank=None, bank_name='', bank_account='', note='', vat_id='', ir='',
                logo_filename=''):
         self.summary = summary
         self.address = address
@@ -35,13 +37,13 @@ class Address(UnicodeProperty):
         self.zip = zip
         self.phone = phone
         self.email = email
+        self.bank = bank
         self.bank_name = bank_name
         self.bank_account = bank_account
         self.note = note
         self.vat_id = vat_id
         self.ir = ir
         self.logo_filename = logo_filename
-
 
     def get_address_lines(self):
 
@@ -72,6 +74,43 @@ class Client(Address):
 class Provider(Address):
     pass
 
+class BankAccount(object):
+
+    """Bank account information for payment purposes
+
+    Attributes:
+        iban International Bank Account Number. Up to 34 alphanumeric
+             characters: 2 letters country code, 2 checksum digits, BBAN (Basic
+             Bank Account Number).
+        bic Business Identifier Codes, also known as 'SWIFT ID' or 'SWIFT CODE'
+        bank_name Name of the bank
+        bank_address Full address, multilines address must be passed as a list
+        bank_country (optional) Country of the bank office holding the account
+    """
+
+    iban = None
+    bic = u''
+    bank_name = u''
+    bank_address = u''
+    bank_country = u''
+
+    def __init__(self, iban, bic, bank_name, bank_address, bank_country=None):
+        self.iban = iban
+        self.bic = bic
+        self.bank_name = bank_name
+        self.bank_address = bank_address
+        self.bank_country = bank_country
+
+    def get_bank_lines(self):
+        bank_fields = (
+            ('Bank', self.bank_name),
+            ('Address', self.bank_address),
+            ('Country', self.bank_country),
+            ('IBAN', self.iban),
+            ('BIC (SWIFT Code)', self.bic),
+        )
+        return ['%s: %s' % (_(field), val) for (field, val) in bank_fields
+                if val]
 
 class Creator(UnicodeProperty):
     _attrs = ('name', 'stamp_filename')

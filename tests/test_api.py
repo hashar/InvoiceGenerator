@@ -3,8 +3,8 @@ import unittest
 import uuid
 
 
-from InvoiceGenerator.api import Client, Provider, Address, Creator, Item, \
-    Invoice
+from InvoiceGenerator.api import Client, Provider, Address, BankAccount, \
+    Creator, Item, Invoice
 
 
 class AddressTest(unittest.TestCase):
@@ -55,6 +55,35 @@ class ClientTest(AddressTest):
 
 class ProviderTest(AddressTest):
     addresss_object = Provider
+
+
+class BankAccountTest(unittest.TestCase):
+
+    def test_required_args(self):
+        self.assertRaises(TypeError, BankAccount)
+
+    def test_get_bank_lines__basic_args(self):
+        account = BankAccount(iban='iban', bic='bic', bank_name='bank name',
+                              bank_address='address')
+        expected_lines = [
+            u'Bank: bank name',
+            u'Address: address',
+            u'IBAN: iban',
+            u'BIC (SWIFT Code): bic',
+        ]
+        self.assertEquals(expected_lines, account.get_bank_lines())
+
+    def test_get_bank_lines__with_country(self):
+        account = BankAccount(iban='iban', bic='bic', bank_name='bank name',
+                              bank_address='address', bank_country='France')
+        expected_lines = [
+            u'Bank: bank name',
+            u'Address: address',
+            u'Country: France',
+            u'IBAN: iban',
+            u'BIC (SWIFT Code): bic',
+        ]
+        self.assertEquals(expected_lines, account.get_bank_lines())
 
 
 class CreatorTest(unittest.TestCase):
